@@ -1,3 +1,5 @@
 {
-    "port": 5000
+    "port": 5000,
+    "mongo_url": "mongodb+srv://bandapixels:ZZRIGVp9U371z5bz@cluster0-qc82u.mongodb.net/test?retryWrites=true&w=majority",
+    "token_expiration": 3
 }

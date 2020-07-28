@@ -1,29 +1,48 @@
 import { Request, Response } from 'express';
 
-import { Id, Password, IdType, Token, Latency } from './types';
+import { Id, Password, IdType, Token, Latency, User } from './types';
 
-import { resSend } from './common';
+import { resSend, errorHandlingSender } from './common';
 
 import * as S from './status-codes';
 
-export const signInHandler = (req: Request, res: Response) => {
-    const { id, password } = req.body as { id: Id, password: Password };
+import * as dao from './app.dao';
 
-    console.log(id, password);
+export const signInHandler = async (req: Request, res: Response) => {
+    
+    await errorHandlingSender(res, async () => {
+        const { id, password } = req.body as { id: Id, password: Password };
 
-    const token = 'some token' as Token;
+        console.log(id, password);
 
-    resSend(res, S.ok, { token });
+        const token = 'some token' as Token;
+
+        await dao.updateToken(token);
+
+        console.log('token updated');
+
+        resSend(res, S.created, { token });
+    });
 }
 
-export const signUpHandler = (req: Request, res: Response) => {
-    const { id, password } = req.body as { id: Id, password: Password };
+export const signUpHandler = async (req: Request, res: Response) => {
+    await errorHandlingSender(res, async () => {
+        const { id, password } = req.body as { id: Id, password: Password };
 
-    console.log(id, password);
+        const id_type = 'email' as IdType;
 
-    const token = 'some token' as Token;
+        const newUser = { id, id_type, password } as User;
 
-    resSend(res, S.created, { token });
+        await dao.createUser(newUser);
+
+        const token = 'some token' as Token;
+
+        await dao.createToken(token);
+
+        console.log('success');
+
+        resSend(res, S.ok, { token });
+    });
 }
 
 export const infoHandler = (req: Request, res: Response) => {
