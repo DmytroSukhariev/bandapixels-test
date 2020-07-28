@@ -1,7 +1,7 @@
 import { UserModel } from '../../db/models/user';
 import { TokenModel } from '../../db/models/token';
 import { TokenBlacklistModel } from '../../db/models/token-blacklist';
-import { User, Token } from './types';
+import { User, Token } from '../types';
 
 export const createUser = async (user: User) => {
     const newUser = new UserModel(user);

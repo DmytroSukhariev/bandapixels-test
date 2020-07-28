@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 
-import { Id, Password, IdType, Token, Latency, User } from './types';
+import { Id, Password, IdType, Token, Latency, User } from '../types';
 
-import { resSend, errorHandlingSender } from './common';
+import { resSend, errorHandlingSender } from '../common';
 
-import * as S from './status-codes';
+import * as S from '../status-codes';
 
 import * as dao from './app.dao';
 
