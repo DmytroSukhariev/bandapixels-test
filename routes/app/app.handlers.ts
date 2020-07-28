@@ -1,10 +1,13 @@
 import { Request, Response } from 'express';
+import * as argon2 from 'argon2';
+import config from 'config';
+import jwt from 'jsonwebtoken';
 
-import { Id, Password, IdType, Token, Latency, User } from '../types';
+import { Id, Password, IdType, Token, Latency, User } from '../../types';
 
-import { resSend, errorHandlingSender } from '../common';
+import { resSend, errorHandlingSender } from '../../lib';
 
-import * as S from '../status-codes';
+import * as S from '../../constants/status-codes';
 
 import * as dao from './app.dao';
 
@@ -27,19 +30,23 @@ export const signInHandler = async (req: Request, res: Response) => {
 
 export const signUpHandler = async (req: Request, res: Response) => {
     await errorHandlingSender(res, async () => {
-        const { id, password } = req.body as { id: Id, password: Password };
+        const { id, password: rawPassword, id_type } = req.body as { id: Id, password: Password, id_type: IdType };
 
-        const id_type = 'email' as IdType;
+        const hashedPassword = await argon2.hash(`${config.get('salt')}${rawPassword}`);
 
-        const newUser = { id, id_type, password } as User;
+        const newUser = { id, id_type, password: hashedPassword } as User;
+
+        console.log(newUser);
+
+        const token = jwt.sign(
+            { id },
+            config.get('jwtSecret'),
+            { expiresIn: `${config.get('token_expiration') as number + 1}m` }
+        ) as Token;
 
         await dao.createUser(newUser);
 
-        const token = 'some token' as Token;
-
         await dao.createToken(token);
-
-        console.log('success');
 
         resSend(res, S.ok, { token });
     });

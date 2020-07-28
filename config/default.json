@@ -1,5 +1,7 @@
 {
     "port": 5000,
     "mongo_url": "mongodb+srv://bandapixels:ZZRIGVp9U371z5bz@cluster0-qc82u.mongodb.net/test?retryWrites=true&w=majority",
-    "token_expiration": 3
+    "token_expiration": 3,
+    "salt": "w-kcYYRz:7#o",
+    "jwtSecret": "w-kcYYRz:7#o"
 }

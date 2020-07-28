@@ -1,8 +1,8 @@
 import { Response } from 'express';
 
-import { ResponseStatus } from './types';
+import { ResponseStatus } from '../types';
 
-import { serverError } from './status-codes';
+import { serverError } from '../constants/status-codes';
 
 export const resSend = <T>(res: Response, status: ResponseStatus, body?: T) => {
     if (!!body) {

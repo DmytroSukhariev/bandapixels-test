@@ -1,4 +1,4 @@
-import { ResponseStatus } from './types';
+import { ResponseStatus } from '../types';
 
 export const ok = 200 as ResponseStatus;
 
