@@ -1,6 +1,6 @@
 import { UserModel } from '../../db/models/user';
 import { TokenModel } from '../../db/models/token';
-import { TokenBlacklistModel } from '../../db/models/token-blacklist';
+import { TokenBlocklistModel } from '../../db/models/token-blocklist';
 import { User, Token, Id, IdType, Password } from '../../types';
 
 export const createUser = async (user: User): Promise<void> => {
@@ -40,6 +40,26 @@ export const findUserById = async (userId: Id): Promise<User | null> => {
     return user as User;
 }
 
-export const checkTokenInBlacklist = async (token: Token): Promise<boolean> => {
-    return await TokenBlacklistModel.exists({ token });
+export const checkTokenInBlocklist = async (token: Token): Promise<boolean> => {
+    return await TokenBlocklistModel.exists({ token });
+}
+
+export const addSingleTokenToBlocklist = async (token: Token): Promise<void> => {
+    const newBlocklistedToken = new TokenBlocklistModel({ token });
+    await newBlocklistedToken.save();
+}
+
+export const addMultipleTokensToBlocklist = async (tokens:  Token[]): Promise<void> => {
+    const tokensToBlock = tokens.map(token => ({ token }));
+    await TokenBlocklistModel.insertMany(tokensToBlock);
+}
+
+export const getAllTokensAndRemove = async (): Promise<Token[]> => {
+    const tokensFromDb = await TokenModel.find({}, 'token');
+    await TokenModel.find().remove();
+    const tokens = tokensFromDb.map((dbEntity) => {
+        const { token } = dbEntity as unknown as { token: Token }
+        return token;
+    })
+    return tokens;
 }

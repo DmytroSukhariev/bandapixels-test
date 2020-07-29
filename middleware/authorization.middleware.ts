@@ -38,9 +38,9 @@ export const authorizationMiddleware = (updateToken: boolean) => async (
             return;
         } 
 
-        const tokenIsInBlacklist = await dao.checkTokenInBlacklist(token);
+        const isTokenInBlocklist = await dao.checkTokenInBlocklist(token);
 
-        if (tokenIsInBlacklist) {
+        if (isTokenInBlocklist) {
             resSend(res, S.unauthorized, generateMessage('Authorization failed'));
             return;
         }

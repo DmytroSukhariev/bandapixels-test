@@ -84,13 +84,18 @@ export const latancyHandler = (req: Request, res: Response) => {
     resSend(res, S.ok, { latency });
 }
 
-export const logOutHandler = (req: Request, res: Response) => {
+export const logOutHandler = async (req: Request, res: Response) => {
     const { all: allParam } = req.query;
+    const { token: myToken } = req.body as { token: Token };
 
     const all = (allParam === 'true');
 
-    console.log(all);
+    if (all) {
+        const allTokens = await dao.getAllTokensAndRemove();
+        await dao.addMultipleTokensToBlocklist(allTokens);
+    } else {    
+        await dao.addSingleTokenToBlocklist(myToken);
+    }
 
     resSend(res, S.ok);
-
 }
