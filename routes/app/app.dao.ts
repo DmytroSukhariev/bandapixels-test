@@ -57,9 +57,11 @@ export const addMultipleTokensToBlocklist = async (tokens:  Token[]): Promise<vo
 export const getAllTokensAndRemove = async (): Promise<Token[]> => {
     const tokensFromDb = await TokenModel.find({}, 'token');
     await TokenModel.find().remove();
+
     const tokens = tokensFromDb.map((dbEntity) => {
         const { token } = dbEntity as unknown as { token: Token }
         return token;
     })
+    
     return tokens;
 }

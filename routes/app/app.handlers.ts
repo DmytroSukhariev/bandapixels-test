@@ -71,11 +71,21 @@ export const signUpHandler = async (req: Request, res: Response) => {
     });
 }
 
-export const infoHandler = (req: Request, res: Response) => {
-    const id = 'some id' as Id;
-    const id_type =  'some id_type' as IdType;
+export const infoHandler = async (req: Request, res: Response) => {
+    await errorHandlingSender(res, async () => {
+        const { id: inputId } = req.body as { id: Id };
 
-    resSend(res, S.ok, { id, id_type });
+        const userFromDb = await dao.findUserById(inputId);
+
+        if (!userFromDb) {
+            resSend(res, S.unauthorized, generateMessage('invalid login or password'));
+            return;
+        }
+
+        const { id, id_type } = userFromDb as { id: Id, id_type: IdType };
+
+        resSend(res, S.created, { id, id_type });
+    });
 }
 
 export const latancyHandler = (req: Request, res: Response) => {
