@@ -1,8 +1,0 @@
-{
-    "port": 5000,
-    "mongo_url": "mongodb+srv://bandapixels:PvHi0HYWop12U78A@cluster0-qc82u.mongodb.net/banda?retryWrites=true&w=majority",
-    "token_expiration": 10,
-    "salt": "5kw.;Dt3:",
-    "jwtSecret": "AF7<$=j#",
-    "hostToPing": "google.com"
-} 
