@@ -88,9 +88,8 @@ export const infoHandler = async (req: Request, res: Response) => {
     });
 }
 
-export const latancyHandler = (req: Request, res: Response) => {
-    const latency = 111 as Latency;
-
+export const latancyHandler = async (req: Request, res: Response) => {
+    const latency = await dao.getLatency(config.get('hostToPing'));
     resSend(res, S.ok, { latency });
 }
 

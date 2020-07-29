@@ -1,7 +1,9 @@
+import ping, { PingResponse } from 'ping';
+
 import { UserModel } from '../../db/models/user';
 import { TokenModel } from '../../db/models/token';
 import { TokenBlocklistModel } from '../../db/models/token-blocklist';
-import { User, Token, Id, IdType, Password } from '../../types';
+import { User, Token, Id, Latency } from '../../types';
 
 export const createUser = async (user: User): Promise<void> => {
     const newUser = new UserModel(user);
@@ -64,4 +66,8 @@ export const getAllTokensAndRemove = async (): Promise<Token[]> => {
     })
     
     return tokens;
+}
+
+export const getLatency = async (host: string): Promise<Latency> => {
+    return (await ping.promise.probe(host)).time as Latency;
 }
