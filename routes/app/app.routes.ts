@@ -3,7 +3,8 @@ import { body } from 'express-validator';
 
 import { emailOrNumberValidator
        , validationErrorHandler
-       , userExistsValidator } from '../../middleware';
+       , userExistsValidator
+       , authorizationMiddleware } from '../../middleware';
 import { signInHandler
        , signUpHandler
        , infoHandler
@@ -19,6 +20,6 @@ const inputsValidator = [
 
 appRouter.post('/signin', inputsValidator, validationErrorHandler, signInHandler);
 appRouter.post('/signup', inputsValidator, emailOrNumberValidator, userExistsValidator, validationErrorHandler, signUpHandler);
-appRouter.get('/info', infoHandler);
-appRouter.get('/latency', latancyHandler);
-appRouter.get('/logout', logOutHandler);
+appRouter.get('/info', authorizationMiddleware(true), infoHandler);
+appRouter.get('/latency', authorizationMiddleware(true), latancyHandler);
+appRouter.get('/logout', authorizationMiddleware(false), logOutHandler);

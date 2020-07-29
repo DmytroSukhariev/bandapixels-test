@@ -39,3 +39,7 @@ export const findUserById = async (userId: Id): Promise<User | null> => {
 
     return user as User;
 }
+
+export const checkTokenInBlacklist = async (token: Token): Promise<boolean> => {
+    return await TokenBlacklistModel.exists({ token });
+}
