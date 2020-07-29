@@ -22,6 +22,8 @@ export const errorHandlingSender = async (
         await requestHandler();
     } catch (e) {
         console.error(e);
-        resSend(res, serverError, { message });
+        resSend(res, serverError, generateMessage(message));
     }
 }
+
+export const generateMessage = (message: string) => ({ message });

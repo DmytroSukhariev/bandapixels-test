@@ -5,24 +5,51 @@ import jwt from 'jsonwebtoken';
 
 import { Id, Password, IdType, Token, Latency, User } from '../../types';
 
-import { resSend, errorHandlingSender } from '../../lib';
+import { resSend, errorHandlingSender, generateMessage } from '../../lib';
 
 import * as S from '../../constants/status-codes';
 
 import * as dao from './app.dao';
 
+const jwtSign = (id: Id): Token => {
+    return jwt.sign(
+        { id },
+        config.get('jwtSecret'),
+        { expiresIn: `${ config.get('token_expiration') as number + 1 }m` }
+    ) as Token;
+}
+
+const argonHash = async (password: Password): Promise<Password> => {
+    return await argon2.hash(`${ config.get('salt') }${ password }`) as Password;
+}
+
+const argonVerify = async (hash: Password, password: Password): Promise<boolean> => {
+    return await argon2.verify(hash, `${ config.get('salt') }${ password }`);
+}
+
 export const signInHandler = async (req: Request, res: Response) => {
-    
     await errorHandlingSender(res, async () => {
-        const { id, password } = req.body as { id: Id, password: Password };
+        const { id: inputId, password: inputPassword } = req.body as { id: Id, password: Password };
 
-        console.log(id, password);
+        const userFromDb = await dao.findUserById(inputId);
 
-        const token = 'some token' as Token;
+        if (!userFromDb) {
+            resSend(res, S.unauthorized, generateMessage('invalid login or password'));
+            return;
+        }
 
-        await dao.updateToken(token);
+        const { id, password } = userFromDb as { id: Id, password: Password };
 
-        console.log('token updated');
+        const passwordVerificationResult = await argonVerify(password, inputPassword);
+        
+        if (!passwordVerificationResult) {
+            resSend(res, S.unauthorized, generateMessage('invalid login or password'));
+            return;
+        } 
+
+        const token = jwtSign(id);
+
+        await dao.createToken(token);
 
         resSend(res, S.created, { token });
     });
@@ -32,21 +59,13 @@ export const signUpHandler = async (req: Request, res: Response) => {
     await errorHandlingSender(res, async () => {
         const { id, password: rawPassword, id_type } = req.body as { id: Id, password: Password, id_type: IdType };
 
-        const hashedPassword = await argon2.hash(`${config.get('salt')}${rawPassword}`);
+        const hashedPassword = await argonHash(rawPassword);
 
         const newUser = { id, id_type, password: hashedPassword } as User;
 
-        console.log(newUser);
+        const token = jwtSign(id)
 
-        const token = jwt.sign(
-            { id },
-            config.get('jwtSecret'),
-            { expiresIn: `${config.get('token_expiration') as number + 1}m` }
-        ) as Token;
-
-        await dao.createUser(newUser);
-
-        await dao.createToken(token);
+        await Promise.all([dao.createUser(newUser), dao.createToken(token)]);
 
         resSend(res, S.ok, { token });
     });
