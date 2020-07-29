@@ -1,0 +1,8 @@
+{
+    "port": 5000,
+    "mongo_url": "mongo_url",
+    "token_expiration": 10,
+    "salt": "SALT",
+    "jwtSecret": "jwtSecret",
+    "hostToPing": "google.com"
+}
