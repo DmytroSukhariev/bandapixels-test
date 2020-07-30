@@ -89,22 +89,26 @@ export const infoHandler = async (req: Request, res: Response) => {
 }
 
 export const latancyHandler = async (req: Request, res: Response) => {
-    const latency = await dao.getLatency(config.get('hostToPing'));
-    resSend(res, S.ok, { latency });
+    await errorHandlingSender(res, async () => {
+        const latency = await dao.getLatency(config.get('hostToPing'));
+        resSend(res, S.ok, { latency });
+    });
 }
 
 export const logOutHandler = async (req: Request, res: Response) => {
-    const { all: allParam } = req.query;
-    const { token: myToken } = req.body as { token: Token };
+    await errorHandlingSender(res, async () => {
+        const { all: allParam } = req.query;
+        const { token: myToken } = req.body as { token: Token };
 
-    const all = (allParam === 'true');
+        const all = (allParam === 'true');
 
-    if (all) {
-        const allTokens = await dao.getAllTokensAndRemove();
-        await dao.addMultipleTokensToBlocklist(allTokens);
-    } else {    
-        await dao.addSingleTokenToBlocklist(myToken);
-    }
+        if (all) {
+            const allTokens = await dao.getAllTokensAndRemove();
+            await dao.addMultipleTokensToBlocklist(allTokens);
+        } else {    
+            await dao.addSingleTokenToBlocklist(myToken);
+        }
 
-    resSend(res, S.ok);
+        resSend(res, S.ok);
+    });
 }
